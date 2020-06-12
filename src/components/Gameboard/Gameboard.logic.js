@@ -93,8 +93,13 @@ const GameLogic = {
     if (tiles.length <= 1) return flipCoordinates;
     if (tiles[1].claim === null || tiles[1].claim === currColor)
       return flipCoordinates;
-    for (let i = 1; i < tiles.length; i++) {
+    for (let i = 1; i <= tiles.length; i++) {
+      if (i === tiles.length) {
+        flipCoordinates = [];
+        break;
+      }
       if (tiles[i].claim === currColor) {
+        flipCoordinates.push(tiles[i].coordinates);
         break;
       }
       if (tiles[i].claim !== null && tiles[1].claim !== currColor) {
@@ -102,6 +107,7 @@ const GameLogic = {
       }
       if (tiles[i].claim === null) {
         flipCoordinates = [];
+        break;
       }
     }
     return flipCoordinates;
@@ -118,7 +124,7 @@ const GameLogic = {
         .map(
           (dir) => this.getTilesInDirection(sq.coordinates, dir, shadowBoard)[1]
         )
-        .filter((space) => space.claim === null)
+        .filter((space) => space && space.claim === null)
         .map((space) => space.coordinates);
     });
     let dedupedPotentials = [...new Set(potentials.flat())];
