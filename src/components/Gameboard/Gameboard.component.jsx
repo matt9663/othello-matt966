@@ -52,20 +52,52 @@ export default class Gameboard extends Component {
     this.props.updateScore(
       GameLogic.getScore(board, this.context.playerOne, this.context.playerTwo)
     );
-    GameLogic.checkPossibleMoves(board, this.context[this.context.currentTurn]);
+
+    let potentials = GameLogic.checkPossibleMoves(
+      board,
+      this.context[this.context.currentTurn]
+    );
+    this.addPotentialMoves(potentials, board);
     return board;
   };
   claimSquare = (coordinates, color) => {
     const { board } = this.state;
+    let potentials = board
+      .map((row) => row.filter((row) => row.potential === true))
+      .flat()
+      .map((row) => row.coordinates);
+    this.removePotentialMoves(potentials, board);
     const [x, y] = coordinates;
     board[x][y].claim = color;
     let newBoard = GameLogic.flipSquares(board, coordinates);
+    let nextPlayer =
+      this.context.currentTurn === "playerOne" ? "playerTwo" : "playerOne";
+    let newPotentials = GameLogic.checkPossibleMoves(
+      newBoard,
+      this.context[nextPlayer]
+    );
+    if (newPotentials.length) {
+      this.addPotentialMoves(newPotentials, newBoard);
+    }
     this.setState({ board: newBoard });
+    this.context.toggleTurn();
     this.props.updateScore(
       GameLogic.getScore(board, this.context.playerOne, this.context.playerTwo)
     );
-    this.context.toggleTurn();
   };
+  addPotentialMoves(squares, board) {
+    squares.forEach((square) => {
+      const [x, y] = square;
+      board[x][y].potential = true;
+    });
+  }
+  removePotentialMoves(squares, board) {
+    squares.forEach((square) => {
+      const [x, y] = square;
+      board[x][y].potential = false;
+    });
+  }
+
   render() {
     const { size } = this.props;
     const { board } = this.state;
@@ -74,7 +106,7 @@ export default class Gameboard extends Component {
       <div
         className="gameboard"
         style={{
-          gridTemplateColumns: `repeat(8, minmax(max-content, max-content))`,
+          gridTemplateColumns: `repeat(${size}, minmax(max-content, max-content))`,
         }}
       >
         {[...board].map((row) =>

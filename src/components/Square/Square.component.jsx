@@ -11,7 +11,7 @@ const Square = ({
 }) => {
   const game = useContext(GameContext);
   function clickSquare(e) {
-    if (!claim) {
+    if (!claim && potential) {
       claimSquare(coordinates, game[game.currentTurn]);
     }
   }
