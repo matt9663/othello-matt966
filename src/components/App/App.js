@@ -1,21 +1,21 @@
-import React, { useState } from "react";
+import React, { useContext } from "react";
 import PageTitle from "../PageTitle/PageTitle";
 import Gameboard from "../Gameboard/Gameboard.component";
 import Scoreboard from "../Scoreboard/Scoreboard";
-
+import GameOptions from "../GameOptions/GameOptions.component";
+import GameContext from "../../context/GameContext";
 import "./App.styles.scss";
 
 function App() {
-  const [score, setScore] = useState([0, 0]);
-  function updateScore(score) {
-    setScore(score);
-  }
+  const game = useContext(GameContext);
+
   return (
     <div className="App">
       <PageTitle />
       <div className="main-container">
-        <Scoreboard score={score} />
-        <Gameboard size={8} updateScore={updateScore} />
+        <GameOptions />
+        <Gameboard size={game.gridSize || 8} />
+        <Scoreboard />
       </div>
     </div>
   );

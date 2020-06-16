@@ -1,13 +1,15 @@
 import React, { Component } from "react";
 
 const GameContext = React.createContext({
-  currentTurn: "playerOne",
-  playerOne: "black",
-  playerTwo: "white",
-  currentScore: [0, 0],
+  currentTurn: "",
+  playerOne: "",
+  playerTwo: "",
+  currentScore: [],
+  gridSize: 0,
   setPlayerColor: () => {},
   toggleTurn: () => {},
   setScore: () => {},
+  setSize: () => {},
 });
 
 export default GameContext;
@@ -20,6 +22,7 @@ export class GameProvider extends Component {
       playerOne: "black",
       playerTwo: "white",
       currentScore: [0, 0],
+      gridSize: 8,
     };
   }
   toggleTurn = () => {
@@ -33,11 +36,13 @@ export class GameProvider extends Component {
       [player]: color,
     });
   };
-  setScore = (playerOneScore, playerTwoScore) => {
-    let scoreArr = [playerOneScore, playerTwoScore];
+  setScore = (arr) => {
     this.setState({
-      currentScore: scoreArr,
+      currentScore: arr,
     });
+  };
+  setSize = (size) => {
+    this.setState({ gridSize: size });
   };
   render() {
     const value = {
@@ -45,9 +50,11 @@ export class GameProvider extends Component {
       playerOne: this.state.playerOne,
       playerTwo: this.state.playerTwo,
       currentScore: this.state.currentScore,
+      gridSize: this.state.gridSize,
       setPlayerColor: this.setPlayerColor,
       toggleTurn: this.toggleTurn,
       setScore: this.setScore,
+      setSize: this.setSize,
     };
     return (
       <GameContext.Provider value={value}>

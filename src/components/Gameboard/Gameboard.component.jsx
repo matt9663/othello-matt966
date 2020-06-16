@@ -5,7 +5,6 @@ import GameContext from "../../context/GameContext";
 import GameLogic from "./Gameboard.logic";
 
 export default class Gameboard extends Component {
-  static contextType = GameContext;
   constructor(props) {
     super(props);
     this.state = {
@@ -15,6 +14,12 @@ export default class Gameboard extends Component {
   componentDidMount() {
     const { size } = this.props;
     this.setState({ board: this.createBoard(size) });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.size !== this.props.size) {
+      this.setState({ board: this.createBoard(this.props.size) });
+    }
   }
 
   createBoard = (gridSize) => {
@@ -29,7 +34,7 @@ export default class Gameboard extends Component {
           row.push({
             coordinates: [rows, column],
             potential: false,
-            claim: this.context.playerTwo,
+            claim: "playerTwo",
           });
         } else if (
           (rows + 1 === gridSize / 2 && column + 1 === gridSize / 2 + 1) ||
@@ -38,7 +43,7 @@ export default class Gameboard extends Component {
           row.push({
             coordinates: [rows, column],
             potential: false,
-            claim: this.context.playerOne,
+            claim: "playerOne",
           });
         } else
           row.push({
@@ -49,18 +54,18 @@ export default class Gameboard extends Component {
       }
       board.push(row);
     }
-    this.props.updateScore(
+    this.context.setScore(
       GameLogic.getScore(board, this.context.playerOne, this.context.playerTwo)
     );
 
     let potentials = GameLogic.checkPossibleMoves(
       board,
-      this.context[this.context.currentTurn]
+      this.context.currentTurn
     );
     this.addPotentialMoves(potentials, board);
     return board;
   };
-  claimSquare = (coordinates, color) => {
+  claimSquare = (coordinates, player) => {
     const { board } = this.state;
     let potentials = board
       .map((row) => row.filter((row) => row.potential === true))
@@ -68,22 +73,17 @@ export default class Gameboard extends Component {
       .map((row) => row.coordinates);
     this.removePotentialMoves(potentials, board);
     const [x, y] = coordinates;
-    board[x][y].claim = color;
+    board[x][y].claim = player;
     let newBoard = GameLogic.flipSquares(board, coordinates);
     let nextPlayer =
       this.context.currentTurn === "playerOne" ? "playerTwo" : "playerOne";
-    let newPotentials = GameLogic.checkPossibleMoves(
-      newBoard,
-      this.context[nextPlayer]
-    );
+    let newPotentials = GameLogic.checkPossibleMoves(newBoard, nextPlayer);
     if (newPotentials.length) {
       this.addPotentialMoves(newPotentials, newBoard);
     }
     this.setState({ board: newBoard });
     this.context.toggleTurn();
-    this.props.updateScore(
-      GameLogic.getScore(board, this.context.playerOne, this.context.playerTwo)
-    );
+    this.context.setScore(GameLogic.getScore(board));
   };
   addPotentialMoves(squares, board) {
     squares.forEach((square) => {
@@ -125,3 +125,4 @@ export default class Gameboard extends Component {
     );
   }
 }
+Gameboard.contextType = GameContext;

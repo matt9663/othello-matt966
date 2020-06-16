@@ -1,5 +1,3 @@
-import GameContext from "../../context/GameContext";
-
 const GameLogic = {
   // Functions
 
@@ -8,7 +6,7 @@ const GameLogic = {
     const newBoard = [...board];
 
     const [x, y] = coordinates;
-    const currColor = board[x][y].claim;
+    const currPlayer = board[x][y].claim;
     let flips = [];
     let paths = directions.map((dir) =>
       this.getTilesInDirection(coordinates, dir, board)
@@ -22,7 +20,7 @@ const GameLogic = {
     flips.forEach((flip) => {
       let x = flip[0];
       let y = flip[1];
-      newBoard[x][y].claim = currColor;
+      newBoard[x][y].claim = currPlayer;
     });
     return newBoard;
   },
@@ -89,34 +87,37 @@ const GameLogic = {
   // that should be flipped
   calculateFlips(tiles) {
     let flipCoordinates = [];
-    let currColor = tiles[0].claim;
+    let currPlayer = tiles[0].claim;
     if (tiles.length <= 1) return flipCoordinates;
-    if (tiles[1].claim === null || tiles[1].claim === currColor)
+    if (tiles[1].claim === null || tiles[1].claim === currPlayer)
       return flipCoordinates;
     for (let i = 1; i <= tiles.length; i++) {
+      // edge of the board
       if (i === tiles.length) {
         flipCoordinates = [];
         break;
       }
-      if (tiles[i].claim === currColor) {
-        flipCoordinates.push(tiles[i].coordinates);
-        break;
-      }
-      if (tiles[i].claim !== null && tiles[1].claim !== currColor) {
-        flipCoordinates.push(tiles[i].coordinates);
-      }
+      //empty space
       if (tiles[i].claim === null) {
         flipCoordinates = [];
         break;
       }
+      //first friendly square
+      if (tiles[i].claim === currPlayer) {
+        flipCoordinates.push(tiles[i].coordinates);
+        break;
+      }
+      if (tiles[i].claim !== null && tiles[1].claim !== currPlayer) {
+        flipCoordinates.push(tiles[i].coordinates);
+      }
     }
     return flipCoordinates;
   },
-  checkPossibleMoves(board, color) {
+  checkPossibleMoves(board, player) {
     let possibleMoves = [];
     let shadowBoard = board.slice();
     let opposingSquares = shadowBoard
-      .map((row) => row.filter((row) => row.claim && row.claim !== color))
+      .map((row) => row.filter((row) => row.claim && row.claim !== player))
       .flat();
     // get coordinates of all open squares adjacent to an opposing square
     let potentials = opposingSquares.map((sq) => {
@@ -132,7 +133,7 @@ const GameLogic = {
       let flips = [];
       const testBoard = board.slice();
       const [x, y] = dedupedPotentials[i];
-      testBoard[x][y].claim = color;
+      testBoard[x][y].claim = player;
       let paths = directions.map((dir) =>
         this.getTilesInDirection([x, y], dir, testBoard)
       );
@@ -149,13 +150,13 @@ const GameLogic = {
     }
     return possibleMoves;
   },
-  getScore(board, playerOne, playerTwo) {
+  getScore(board) {
     let playerOneScore = 0;
     let playerTwoScore = 0;
     for (let i = 0; i < board.length; i++) {
       for (let j = 0; j < board.length; j++) {
-        if (board[i][j].claim === playerOne) playerOneScore++;
-        if (board[i][j].claim === playerTwo) playerTwoScore++;
+        if (board[i][j].claim === "playerOne") playerOneScore++;
+        if (board[i][j].claim === "playerTwo") playerTwoScore++;
       }
     }
     return [playerOneScore, playerTwoScore];

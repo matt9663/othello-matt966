@@ -1,10 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import GameContext from "../../context/GameContext";
+import PlayerMarker from "../PlayerMarker/PlayerMarker.component";
+import "./Scoreboard.styles.scss";
 
-const Scoreboard = ({ score }) => {
+const Scoreboard = () => {
+  const game = useContext(GameContext);
   return (
     <div className="scoreboard">
-      {score[0]}-{score[1]}
+      <div className="scores">
+        <PlayerMarker color={game.playerOne} />
+        {game.currentScore[0]}-{game.currentScore[1]}
+        <PlayerMarker color={game.playerTwo} />
+      </div>
+      <div className="current-turn">
+        Current Turn: <PlayerMarker color={game[game.currentTurn]} />
+      </div>
     </div>
   );
 };

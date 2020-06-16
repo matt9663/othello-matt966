@@ -12,7 +12,7 @@ const Square = ({
   const game = useContext(GameContext);
   function clickSquare(e) {
     if (!claim && potential) {
-      claimSquare(coordinates, game[game.currentTurn]);
+      claimSquare(coordinates, game.currentTurn);
     }
   }
   return (
@@ -30,7 +30,7 @@ const Square = ({
           height: `95%`,
           width: `95%`,
           borderRadius: "50%",
-          backgroundColor: `${claim ? claim : "inherit"}`,
+          backgroundColor: `${claim ? game[claim] : "inherit"}`,
         }}
       />
     </div>

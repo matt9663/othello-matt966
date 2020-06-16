@@ -1,0 +1,19 @@
+.scoreboard {
+  padding: 10px 0;
+  width: 100%;
+  max-width: 477px;
+  background-color: lightgrey;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  .scores {
+    display: flex;
+    font-size: 1.5rem;
+    align-items: center;
+  }
+  .current-turn {
+    display: flex;
+    margin: 10px 0;
+  }
+}
