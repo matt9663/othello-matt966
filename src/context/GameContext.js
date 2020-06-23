@@ -10,6 +10,7 @@ const GameContext = React.createContext({
   toggleTurn: () => {},
   setScore: () => {},
   setSize: () => {},
+  resetTurnOrder: () => {},
 });
 
 export default GameContext;
@@ -30,6 +31,9 @@ export class GameProvider extends Component {
     this.setState({
       currentTurn: currentTurn === "playerOne" ? "playerTwo" : "playerOne",
     });
+  };
+  resetTurnOrder = () => {
+    this.setState({ currentTurn: "playerOne" });
   };
   setPlayerColor = (player, color) => {
     this.setState({
@@ -55,6 +59,7 @@ export class GameProvider extends Component {
       toggleTurn: this.toggleTurn,
       setScore: this.setScore,
       setSize: this.setSize,
+      resetTurnOrder: this.resetTurnOrder,
     };
     return (
       <GameContext.Provider value={value}>

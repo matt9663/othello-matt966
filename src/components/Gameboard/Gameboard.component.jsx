@@ -11,6 +11,7 @@ export default class Gameboard extends Component {
       board: [],
     };
   }
+
   componentDidMount() {
     const { size } = this.props;
     this.setState({ board: this.createBoard(size) });
@@ -18,7 +19,10 @@ export default class Gameboard extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.size !== this.props.size) {
-      this.setState({ board: this.createBoard(this.props.size) });
+      this.setState({
+        board: this.createBoard(this.props.size),
+      });
+      this.context.resetTurnOrder();
     }
   }
 
@@ -65,6 +69,7 @@ export default class Gameboard extends Component {
     this.addPotentialMoves(potentials, board);
     return board;
   };
+
   claimSquare = (coordinates, player) => {
     const { board } = this.state;
     let potentials = board
@@ -78,19 +83,41 @@ export default class Gameboard extends Component {
     let nextPlayer =
       this.context.currentTurn === "playerOne" ? "playerTwo" : "playerOne";
     let newPotentials = GameLogic.checkPossibleMoves(newBoard, nextPlayer);
-    if (newPotentials.length) {
+    if (!newPotentials.length) {
+      let newerPotentials = GameLogic.checkPossibleMoves(
+        newBoard,
+        this.context.currentTurn
+      );
+      if (!newerPotentials.length) {
+        this.context.setScore(GameLogic.getScore(board));
+      } else {
+        alert(
+          `${
+            nextPlayer[0].toUpperCase() +
+            nextPlayer.slice(1, 6) +
+            " " +
+            nextPlayer.slice(6)
+          } passes`
+        );
+        this.context.setScore(GameLogic.getScore(board));
+        this.addPotentialMoves(newerPotentials, newBoard);
+        this.setState({ board: newBoard, passed: true });
+      }
+    } else {
       this.addPotentialMoves(newPotentials, newBoard);
+      this.setState({ board: newBoard, passed: false });
+      this.context.toggleTurn();
+      this.context.setScore(GameLogic.getScore(board));
     }
-    this.setState({ board: newBoard });
-    this.context.toggleTurn();
-    this.context.setScore(GameLogic.getScore(board));
   };
+
   addPotentialMoves(squares, board) {
     squares.forEach((square) => {
       const [x, y] = square;
       board[x][y].potential = true;
     });
   }
+
   removePotentialMoves(squares, board) {
     squares.forEach((square) => {
       const [x, y] = square;
@@ -98,10 +125,18 @@ export default class Gameboard extends Component {
     });
   }
 
+  endGame() {
+    let { currentScore } = this.context;
+    if (currentScore[0] > currentScore[1]) {
+      alert("Player 1 wins!");
+    } else {
+      alert("Player 2 wins!");
+    }
+  }
+
   render() {
     const { size } = this.props;
     const { board } = this.state;
-
     return (
       <div
         className="gameboard"
